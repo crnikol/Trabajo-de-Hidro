@@ -1,0 +1,94 @@
+---
+title: "Tarea de Hidrologia"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## GRAFICOS DE HIDRO
+En los siguientes graficos se van a representar las cuencas de rio banao y estrella
+
+```{r}
+inp <- read.csv("FDC.csv", na.strings = "")
+inp <- read.csv("FDC.csv")
+
+head(inp)
+dim(inp)
+
+inp[!complete.cases(inp),]
+```
+## Grafico 1
+En el siguiente grafico se mostrara el cauldal de los Rios estudiados
+```{r}
+plot(inp[,2], type= "l", 
+     col="blue",
+     xlab = "Fechas",
+     ylab = "Caudal ml por dia",
+     main = "Comparacion del caudal del Rio Estrella y Rio Banano"
+)
+lines(inp[,3], col="green")
+```
+
+## Primer histograma
+Se muestra la distribucion de datos.
+```{r}
+summary(inp[,2:3])
+hist(inp[,2],
+     col = "red",
+     xlab = ("Rango absoluto"),
+     ylab = ("Frecuencia"),
+     main = "Distribucion de datos de minimo a maximo del Rio Estrella"
+     )
+```
+
+```{r}
+hist(inp[,3],
+    col = "pink",
+    xlab = "Rango absoluto",
+    ylab = "Frecuencia",
+    main = "Distribucion de datos de minimo a maximo del Rio Banano"
+)
+```
+
+## Tercer grafico
+Se mostraran los valores anuales de los caudales
+```{r}
+names(inp) <- c("fecha", "Estrella", "Banano")
+attach(inp)
+plot(Estrella)
+
+Tempdate <- strptime(inp[,1], format= "%d/%m/%Y")
+
+MAQ_Estrella <- tapply(inp[,2], format(Tempdate, format="%Y"), FUN=sum)
+MAQ_Banano <- tapply(inp[,3], format(Tempdate, format="%Y"), FUN=sum)
+
+write.csv(rbind(MAQ_Estrella,MAQ_Banano), file="MAQ.csv")
+
+plot(MAQ_Banano, ylim = c(100,3000),
+     xlab = "MAQ_Estrella", 
+     main = "Valores anuales del caudal"
+)
+lines(MAQ_Estrella, col=2)
+
+MMQ_Estrella <- tapply(inp[,2], format(Tempdate, format="%m"), FUN=sum)
+MMQ_Banano <- tapply(inp[,3], format(Tempdate, format="%m"), FUN=sum)
+```
+
+## Cuarto Grafico.
+Se presenta el regimen climatologico.
+```{r}
+corinp <- cor(inp[,2:3], method = "spearman")
+plot(Estrella, Banano,
+    main = "Regimen Climatologico: lluvias",
+    col= "yellow"
+)
+
+
+inp.lm <- lm(inp[,2]~ inp[,3], data=inp)
+summary(inp.lm)
+plot(inp.lm)
+```
+
+```{r}
+```
